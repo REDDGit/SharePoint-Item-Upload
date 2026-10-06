@@ -7,9 +7,9 @@ function Invoke-SharePointUpload {
         Body (JSON):
           attachment_name    required  File name to save as
           attachment         required  Base64 file content (e.g. Graph fileAttachment contentBytes)
-          folder_path        optional  Folder inside the library. Defaults to $env:SPDefaultFolder
-          site_id            optional  Graph site id. Defaults to $env:SPSiteId (uses the site's default library)
-          drive_id           optional  Target a specific library instead of the site's default one
+          site_id            required* Graph site id (uploads to the site's default library)
+          drive_id           required* Specific library id. *Supply site_id or drive_id, not both
+          folder_path        required  Folder inside the library. Use "/" for the library root
           conflict_behavior  optional  replace (default) | rename | fail
     #>
     [CmdletBinding()]
@@ -34,15 +34,16 @@ function Invoke-SharePointUpload {
             throw 'attachment is not valid base64'
         }
 
-        if ($Body.drive_id) {
-            $DriveRoot = 'drives/{0}' -f $Body.drive_id
-        } else {
-            $SiteId = if ($Body.site_id) { $Body.site_id } else { $env:SPSiteId }
-            if (-not $SiteId) {
-                $StatusCode = [HttpStatusCode]::BadRequest
-                throw 'No site_id or drive_id supplied and SPSiteId app setting is not set'
-            }
-            $DriveRoot = 'sites/{0}/drive' -f $SiteId
+        # No defaults: every request must say exactly where the file goes
+        if ([bool]$Body.site_id -eq [bool]$Body.drive_id) {
+            $StatusCode = [HttpStatusCode]::BadRequest
+            throw 'Supply either site_id or drive_id (exactly one)'
+        }
+        $DriveRoot = if ($Body.drive_id) { 'drives/{0}' -f $Body.drive_id } else { 'sites/{0}/drive' -f $Body.site_id }
+
+        if ([string]::IsNullOrWhiteSpace($Body.folder_path)) {
+            $StatusCode = [HttpStatusCode]::BadRequest
+            throw 'folder_path is required. Use "/" to upload to the library root'
         }
 
         $Conflict = if ($Body.conflict_behavior) { $Body.conflict_behavior } else { 'replace' }
@@ -53,7 +54,7 @@ function Invoke-SharePointUpload {
 
         $Upload = @{
             DriveRoot        = $DriveRoot
-            FolderPath       = if ($null -ne $Body.folder_path) { $Body.folder_path } else { $env:SPDefaultFolder }
+            FolderPath       = $Body.folder_path
             FileName         = $Body.attachment_name
             FileBytes        = $FileBytes
             ConflictBehavior = $Conflict

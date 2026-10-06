@@ -22,20 +22,6 @@
             "metadata": {
                 "description": "Name of branch to deploy"
             }
-        },
-        "SPSiteId": {
-            "defaultValue": "reddgroup.sharepoint.com,fc39acf7-ba08-4b85-be3c-861ab5002ca1,202e4234-2829-4927-bfea-836e7474add2",
-            "type": "String",
-            "metadata": {
-                "description": "Default Graph site id to upload to (site's default document library)"
-            }
-        },
-        "SPDefaultFolder": {
-            "defaultValue": "Backup Radar Reports",
-            "type": "String",
-            "metadata": {
-                "description": "Default folder inside the library when folder_path isn't supplied"
-            }
         }
     },
     "variables": {
@@ -83,14 +69,6 @@
                         {
                             "name": "FUNCTIONS_WORKER_RUNTIME",
                             "value": "powershell"
-                        },
-                        {
-                            "name": "SPSiteId",
-                            "value": "[parameters('SPSiteId')]"
-                        },
-                        {
-                            "name": "SPDefaultFolder",
-                            "value": "[parameters('SPDefaultFolder')]"
                         }
                     ]
                 },

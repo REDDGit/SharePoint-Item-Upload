@@ -4,15 +4,17 @@
     1. Assigns the Graph application permission Sites.Selected to the managed identity
     2. Grants that identity 'write' on the target site
 
-    Run once after deploying. Needs an admin who can consent AppRoleAssignment.ReadWrite.All
+    Run once per site the app should be able to write to. Needs an admin who can consent AppRoleAssignment.ReadWrite.All
     and Sites.FullControl.All (Global Admin / Privileged Role Admin).
 
 .EXAMPLE
-    ./Grant-GraphPermissions.ps1 -FunctionAppName spdocumentuploadabcde
+    ./Grant-GraphPermissions.ps1 -FunctionAppName sharepoint-item-uploadabcde -SiteId 'reddgroup.sharepoint.com,fc39acf7-ba08-4b85-be3c-861ab5002ca1,202e4234-2829-4927-bfea-836e7474add2'
+
+    Get a site id with: GET https://graph.microsoft.com/v1.0/sites/reddgroup.sharepoint.com:/sites/<site>
 #>
 param(
     [Parameter(Mandatory)][string]$FunctionAppName,
-    [string]$SiteId = 'reddgroup.sharepoint.com,fc39acf7-ba08-4b85-be3c-861ab5002ca1,202e4234-2829-4927-bfea-836e7474add2',
+    [Parameter(Mandatory)][string]$SiteId,
     [ValidateSet('read', 'write')][string]$Role = 'write'
 )
 
