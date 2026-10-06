@@ -1,0 +1,19 @@
+{
+  "scriptFile": "../Modules/Entrypoints/Entrypoints.psm1",
+  "entryPoint": "Receive-HttpTrigger",
+  "bindings": [
+    {
+      "authLevel": "function",
+      "type": "httpTrigger",
+      "direction": "in",
+      "name": "Request",
+      "methods": ["post"],
+      "route": "{Endpoint}"
+    },
+    {
+      "type": "http",
+      "direction": "out",
+      "name": "Response"
+    }
+  ]
+}
